@@ -24,6 +24,8 @@ export const useChargePayments = (chargeId) =>
   useSWR(chargeId ? ['db', 'admin', 'payments', chargeId] : null, () => admin.getChargePayments(chargeId), options);
 export const useVendors = () => useAdminQuery(['vendors'], admin.getVendors);
 export const useWorkOrders = () => useAdminQuery(['work-orders'], admin.getWorkOrders);
+export const useWorkOrderEvents = (workOrderId) =>
+  useSWR(workOrderId ? ['db', 'admin', 'work-order-events', workOrderId] : null, () => admin.getWorkOrderEvents(workOrderId), options);
 export const useApplications = () => useAdminQuery(['applications'], admin.getApplications);
 
 /** Wraps a mutation: tracks pending state, toasts the outcome, and refreshes every query. */

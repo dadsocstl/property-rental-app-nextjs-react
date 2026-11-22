@@ -39,6 +39,7 @@ export default function PayDialog({ charge, userId, onClose }) {
   const [checkout, setCheckout] = useState(null);
   const [linkToken, setLinkToken] = useState(null);
   const [bank, setBank] = useState(null);
+  const [linked, setLinked] = useState(null);
   const [receipt, setReceipt] = useState(null);
 
   const method = chosen ?? (config?.card ? 'card' : config?.bank ? 'bank' : 'card');
@@ -115,14 +116,27 @@ export default function PayDialog({ charge, userId, onClose }) {
     }
   }
 
-  function onLinked(publicToken, metadata) {
-    const account = metadata.accounts[0];
-    setBank({
-      publicToken,
-      accountId: account.id,
-      label: `${metadata.institution?.name ?? 'Bank'} · ${account.name} ••${account.mask}`,
-    });
+  function accountLabel(institution, account) {
+    return `${institution ?? 'Bank'} · ${account.name}${account.mask ? ` ••${account.mask}` : ''}`;
+  }
+
+  function chooseAccount(publicToken, institution, account) {
+    setBank({ publicToken, accountId: account.id, label: accountLabel(institution, account) });
     setStep('bank-confirm');
+  }
+
+  function onLinked(publicToken, metadata) {
+    const institution = metadata.institution?.name;
+    const accounts = metadata.accounts ?? [];
+    if (accounts.length === 0) {
+      setError('No eligible checking or savings account was selected');
+      setStep('choose');
+    } else if (accounts.length === 1) {
+      chooseAccount(publicToken, institution, accounts[0]);
+    } else {
+      setLinked({ publicToken, institution, accounts });
+      setStep('pick-account');
+    }
   }
 
   function onLinkExit(err) {
@@ -196,6 +210,29 @@ export default function PayDialog({ charge, userId, onClose }) {
 
         {step === 'linking' && linkToken && <PlaidLauncher token={linkToken} onSuccess={onLinked} onExit={onLinkExit} />}
 
+        {step === 'pick-account' && linked && (
+          <div className='flex flex-col gap-3'>
+            <p className='text-sm text-muted-foreground'>Choose the account to pay from.</p>
+            <ul className='flex flex-col gap-2'>
+              {linked.accounts.map((account) => (
+                <li key={account.id}>
+                  <button
+                    type='button'
+                    onClick={() => chooseAccount(linked.publicToken, linked.institution, account)}
+                    className='flex w-full items-center justify-between gap-3 rounded-lg border border-border/70 p-3 text-left transition-colors hover:border-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                  >
+                    <span className='text-sm font-semibold'>{account.name}</span>
+                    <span className='text-xs capitalize text-muted-foreground'>
+                      {account.subtype}
+                      {account.mask ? ` ••${account.mask}` : ''}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {step === 'bank-confirm' && bank && (
           <div className='flex flex-col gap-4'>
             <dl className='flex flex-col gap-3 rounded-lg border border-border/70 bg-card/40 p-4 text-sm'>
@@ -250,13 +287,13 @@ export default function PayDialog({ charge, userId, onClose }) {
           )}
           {step === 'bank-confirm' && (
             <>
-              <Button variant='outline' onClick={() => setStep('choose')}>
+              <Button variant='outline' onClick={() => setStep(linked?.accounts.length > 1 ? 'pick-account' : 'choose')}>
                 Back
               </Button>
               <Button onClick={payFromBank}>Pay {money(payment.amountCents, { precise: true })}</Button>
             </>
           )}
-          {(step === 'card' || step === 'problem') && (
+          {(step === 'card' || step === 'problem' || step === 'linking' || step === 'pick-account') && (
             <Button variant='outline' onClick={onClose}>
               Close
             </Button>

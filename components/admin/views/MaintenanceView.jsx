@@ -1,6 +1,7 @@
 'use client';
 
 import FormDialog from '@/components/admin/FormDialog';
+import WorkOrderDetail from '@/components/admin/WorkOrderDetail';
 import {
   EmptyRow,
   Field,
@@ -111,17 +112,24 @@ function AddVendorDialog() {
   );
 }
 
-function WorkOrderRow({ order, vendors }) {
+function WorkOrderRow({ order, vendors, onOpen }) {
   const { run, pending } = useAdminAction();
   const update = (changes) => run(() => admin.updateWorkOrder(order.id, { status: order.status, ...changes }));
 
   return (
     <tr className='hover:bg-secondary/20'>
       <Td className='font-medium'>
-        {order.title}
+        <button
+          type='button'
+          onClick={onOpen}
+          className='rounded-sm text-left underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+        >
+          {order.title}
+        </button>
         <span className='block text-xs font-normal text-muted-foreground'>
           Opened {shortDate(order.created_at)}
           {order.first_name ? ` · ${order.first_name} ${order.last_name}` : ''}
+          {order.scheduled_for ? ` · Visit ${shortDate(order.scheduled_for)}` : ''}
         </span>
       </Td>
       <Td className='text-muted-foreground'>
@@ -169,14 +177,21 @@ function WorkOrderRow({ order, vendors }) {
       <Td className='text-right tabular-nums text-muted-foreground'>
         {order.cost_cents !== null ? money(order.cost_cents) : '—'}
       </Td>
+      <Td className='text-right'>
+        <Button size='sm' variant='outline' onClick={onOpen}>
+          Manage<span className='sr-only'> {order.title}</span>
+        </Button>
+      </Td>
     </tr>
   );
 }
 
 export default function MaintenanceView() {
   const [filter, setFilter] = useState('active');
+  const [selectedId, setSelectedId] = useState(null);
   const { data: orders, error, isLoading } = useWorkOrders();
   const { data: vendors } = useVendors();
+  const selected = (orders ?? []).find((o) => o.id === selectedId);
 
   const isActive = (o) => ['open', 'assigned', 'in_progress'].includes(o.status);
   const activeCount = (orders ?? []).filter(isActive).length;
@@ -208,16 +223,21 @@ export default function MaintenanceView() {
               <Th>Vendor</Th>
               <Th>Status</Th>
               <Th className='text-right'>Cost</Th>
+              <Th>
+                <span className='sr-only'>Manage</span>
+              </Th>
             </tr>
           </thead>
           <tbody>
-            {visible.length === 0 && <EmptyRow colSpan={6}>Nothing here.</EmptyRow>}
+            {visible.length === 0 && <EmptyRow colSpan={7}>Nothing here.</EmptyRow>}
             {visible.map((o) => (
-              <WorkOrderRow key={o.id} order={o} vendors={vendors ?? []} />
+              <WorkOrderRow key={o.id} order={o} vendors={vendors ?? []} onOpen={() => setSelectedId(o.id)} />
             ))}
           </tbody>
         </TableShell>
       </QueryState>
+
+      {selected && <WorkOrderDetail key={selected.id} order={selected} vendors={vendors ?? []} onClose={() => setSelectedId(null)} />}
 
       <section aria-labelledby='vendors-heading' className='flex flex-col gap-4'>
         <div className='flex items-center justify-between gap-2'>
