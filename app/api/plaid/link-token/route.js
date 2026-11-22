@@ -1,4 +1,4 @@
-import { CountryCode, Products } from 'plaid';
+import { CountryCode, Products } from 'plaid/legacy';
 import { NextResponse } from 'next/server';
 import { handleRouteError, jsonError } from '@/lib/payment-input';
 import { getPlaid, plaidErrorMessage } from '@/lib/plaid';

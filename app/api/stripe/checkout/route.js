@@ -14,7 +14,6 @@ export async function POST(request) {
       ui_mode: 'embedded_page',
       redirect_on_completion: 'never',
       mode: 'payment',
-      payment_method_types: ['card'],
       customer_email: payment.email,
       metadata,
       payment_intent_data: { description: payment.description, metadata },

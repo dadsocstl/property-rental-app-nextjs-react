@@ -6,7 +6,9 @@ import { cn } from '@/lib/utils';
 import {
   Building2,
   ClipboardList,
+  DoorOpen,
   FileSignature,
+  Home,
   LayoutDashboard,
   Receipt,
   ShieldAlert,
@@ -19,6 +21,8 @@ import { usePathname } from 'next/navigation';
 
 export const ADMIN_NAV = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
+  { href: '/admin/properties', label: 'Properties', icon: Home },
+  { href: '/admin/vacancies', label: 'Vacancies', icon: DoorOpen },
   { href: '/admin/rent', label: 'Rent ledger', icon: Receipt },
   { href: '/admin/leases', label: 'Leases', icon: FileSignature },
   { href: '/admin/tenants', label: 'Tenants', icon: Users },

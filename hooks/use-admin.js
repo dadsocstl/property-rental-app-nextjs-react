@@ -16,6 +16,9 @@ function useAdminQuery(key, fetcher) {
 export const useOverview = () => useAdminQuery(['overview'], admin.getOverview);
 export const useLandlords = () => useAdminQuery(['landlords'], admin.getLandlords);
 export const useUnits = () => useAdminQuery(['units'], admin.getUnits);
+export const usePortfolio = () => useAdminQuery(['portfolio'], admin.getPortfolio);
+export const usePropertyDetail = (propertyId) => useAdminQuery(['property', propertyId], () => admin.getPropertyDetail(propertyId));
+export const useVacancies = () => useAdminQuery(['vacancies'], admin.getVacancies);
 export const useListingsForUnits = () => useAdminQuery(['listings'], admin.getListingsForUnits);
 export const useTenants = () => useAdminQuery(['tenants'], admin.getTenants);
 export const useLeases = () => useAdminQuery(['leases'], admin.getLeases);
@@ -24,6 +27,8 @@ export const useChargePayments = (chargeId) =>
   useSWR(chargeId ? ['db', 'admin', 'payments', chargeId] : null, () => admin.getChargePayments(chargeId), options);
 export const useVendors = () => useAdminQuery(['vendors'], admin.getVendors);
 export const useWorkOrders = () => useAdminQuery(['work-orders'], admin.getWorkOrders);
+export const useWorkOrderEvents = (workOrderId) =>
+  useSWR(workOrderId ? ['db', 'admin', 'work-order-events', workOrderId] : null, () => admin.getWorkOrderEvents(workOrderId), options);
 export const useApplications = () => useAdminQuery(['applications'], admin.getApplications);
 
 /** Wraps a mutation: tracks pending state, toasts the outcome, and refreshes every query. */

@@ -19,21 +19,27 @@ import { Button } from '@/components/ui/button';
 import { useSession } from '@/context/SessionContext';
 import { useRenterAccount } from '@/hooks/use-renter';
 import { DEV_ACCOUNTS } from '@/lib/dev';
-import { buildReceiptPdf, downloadPdf } from '@/lib/receipt';
-import { CreditCard, Download } from 'lucide-react';
+import { COMPANY, downloadReceipt as saveReceiptPdf, sampleReceiptData } from '@/lib/receipt';
+import { CreditCard, Download, FileText } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
 const PayDialog = dynamic(() => import('@/components/renter/PayDialog'), { ssr: false });
 
-const COMPANY = 'Timeless Carat Properties';
-
-/** Builds and downloads a PDF covering `payments` made against one charge. */
-function downloadReceipt(account, charge, payments, number) {
+async function buildAndSave(data, number) {
   try {
-    const { tenant, user, lease } = account;
-    const bytes = buildReceiptPdf({
+    await saveReceiptPdf(data, `receipt-${number.toLowerCase()}.pdf`);
+  } catch (error) {
+    toast.error(`Could not create the receipt: ${error.message}`);
+  }
+}
+
+/** Downloads a PDF covering `payments` made against one charge. */
+function downloadReceipt(account, charge, payments, number) {
+  const { tenant, user, lease } = account;
+  return buildAndSave(
+    {
       number,
       company: COMPANY,
       tenantName: [tenant.first_name, tenant.last_name].filter(Boolean).join(' ') || user.email,
@@ -43,11 +49,9 @@ function downloadReceipt(account, charge, payments, number) {
       charge,
       payments,
       issuedOn: new Date().toISOString(),
-    });
-    downloadPdf(bytes, `receipt-${number.toLowerCase()}.pdf`);
-  } catch (error) {
-    toast.error(`Could not create the receipt: ${error.message}`);
-  }
+    },
+    number
+  );
 }
 
 const METHOD_LABELS = { ach: 'Bank transfer (ACH)', card: 'Card', check: 'Check', cash: 'Cash', other: 'Other' };
@@ -181,7 +185,16 @@ export default function RenterDashboard() {
             </div>
 
             <div className='flex flex-col gap-3'>
-              <h2 className='font-display text-xl font-bold'>Payment history</h2>
+              <div className='flex flex-wrap items-center justify-between gap-3'>
+                <h2 className='font-display text-xl font-bold'>Payment history</h2>
+                <Button
+                  size='sm'
+                  variant='outline'
+                  onClick={() => buildAndSave(sampleReceiptData(), 'sample-00001')}
+                >
+                  <FileText /> Download sample receipt
+                </Button>
+              </div>
               <TableShell label='Payment history'>
                 <thead>
                   <tr>

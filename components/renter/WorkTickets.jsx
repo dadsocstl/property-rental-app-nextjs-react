@@ -2,9 +2,10 @@
 
 import { EmptyRow, StatusBadge, TableShell, Td, Th, shortDate } from '@/components/admin/primitives';
 import WorkTicketDialog from '@/components/renter/WorkTicketDialog';
+import WorkTicketDetail from '@/components/renter/WorkTicketDetail';
 import { Button } from '@/components/ui/button';
-import { useAdminAction } from '@/hooks/use-admin';
-import { cancelRenterWorkOrder } from '@/lib/renter';
+import { MessageSquare } from 'lucide-react';
+import { useState } from 'react';
 
 const PROGRESS = {
   open: 'Received — waiting for management to assign someone',
@@ -15,7 +16,9 @@ const PROGRESS = {
 };
 
 export default function WorkTickets({ tickets, unitLabel }) {
-  const { run, pending } = useAdminAction();
+  const [selectedId, setSelectedId] = useState(null);
+  // Looked up by id so the open dialog follows the live data after a reply or status change.
+  const selected = tickets.find((ticket) => ticket.id === selectedId);
 
   return (
     <div className='flex flex-col gap-3'>
@@ -31,7 +34,7 @@ export default function WorkTickets({ tickets, unitLabel }) {
             <Th>Priority</Th>
             <Th>Status</Th>
             <Th>
-              <span className='sr-only'>Actions</span>
+              <span className='sr-only'>Details</span>
             </Th>
           </tr>
         </thead>
@@ -39,46 +42,53 @@ export default function WorkTickets({ tickets, unitLabel }) {
           {tickets.length === 0 && (
             <EmptyRow colSpan={5}>No tickets yet. Submit one if something in your home needs attention.</EmptyRow>
           )}
-          {tickets.map((ticket) => (
-            <tr key={ticket.id}>
-              <Td className='whitespace-nowrap align-top'>{shortDate(ticket.created_at)}</Td>
-              <Td className='align-top'>
-                <p className='font-medium'>{ticket.title}</p>
-                {ticket.description && (
-                  <p className='mt-0.5 max-w-md text-pretty text-sm text-muted-foreground'>{ticket.description}</p>
-                )}
-              </Td>
-              <Td className='align-top'>
-                <StatusBadge status={ticket.priority} />
-              </Td>
-              <Td className='align-top'>
-                <div className='flex flex-col items-start gap-1'>
-                  <StatusBadge status={ticket.status} />
-                  <p className='max-w-56 text-xs text-muted-foreground'>
-                    {ticket.status === 'completed' && ticket.completed_at
-                      ? `Completed ${shortDate(ticket.completed_at)}`
-                      : PROGRESS[ticket.status]}
-                    {ticket.vendor_name && ticket.status !== 'cancelled' ? ` · ${ticket.vendor_name}` : ''}
-                  </p>
-                </div>
-              </Td>
-              <Td className='text-right align-top'>
-                {ticket.status === 'open' && (
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    disabled={pending}
-                    onClick={() => run(() => cancelRenterWorkOrder(ticket.id))}
+          {tickets.map((ticket) => {
+            const replies = ticket.events.filter((event) => event.kind === 'comment').length;
+            return (
+              <tr key={ticket.id} className='hover:bg-secondary/20'>
+                <Td className='whitespace-nowrap align-top'>{shortDate(ticket.created_at)}</Td>
+                <Td className='align-top'>
+                  <button
+                    type='button'
+                    onClick={() => setSelectedId(ticket.id)}
+                    className='rounded-sm text-left font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                   >
-                    Withdraw
-                    <span className='sr-only'> {ticket.title}</span>
+                    {ticket.title}
+                  </button>
+                  {ticket.description && (
+                    <p className='mt-0.5 line-clamp-2 max-w-md text-pretty text-sm text-muted-foreground'>
+                      {ticket.description}
+                    </p>
+                  )}
+                </Td>
+                <Td className='align-top'>
+                  <StatusBadge status={ticket.priority} />
+                </Td>
+                <Td className='align-top'>
+                  <div className='flex flex-col items-start gap-1'>
+                    <StatusBadge status={ticket.status} />
+                    <p className='max-w-56 text-xs text-muted-foreground'>
+                      {ticket.status === 'completed' && ticket.completed_at
+                        ? `Completed ${shortDate(ticket.completed_at)}`
+                        : PROGRESS[ticket.status]}
+                      {ticket.vendor_name && ticket.status !== 'cancelled' ? ` · ${ticket.vendor_name}` : ''}
+                    </p>
+                  </div>
+                </Td>
+                <Td className='text-right align-top'>
+                  <Button size='sm' variant='outline' onClick={() => setSelectedId(ticket.id)}>
+                    <MessageSquare /> View
+                    {replies > 0 && <span className='tabular-nums'>({replies})</span>}
+                    <span className='sr-only'> ticket: {ticket.title}</span>
                   </Button>
-                )}
-              </Td>
-            </tr>
-          ))}
+                </Td>
+              </tr>
+            );
+          })}
         </tbody>
       </TableShell>
+
+      {selected && <WorkTicketDetail ticket={selected} onClose={() => setSelectedId(null)} />}
     </div>
   );
 }
