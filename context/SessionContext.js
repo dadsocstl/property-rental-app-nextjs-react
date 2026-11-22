@@ -27,6 +27,15 @@ export function SessionProvider({ children }) {
     await refreshDb();
   }, []);
 
+  const updateProfile = useCallback(
+    async (fields) => {
+      if (!user) throw new Error('You must be signed in to do that');
+      await data.updateProfile(user.id, fields);
+      await refreshDb();
+    },
+    [user]
+  );
+
   useEffect(() => {
     if (!DEV_BYPASS || isLoading || error || user || autoSignInAttempted.current) return;
     autoSignInAttempted.current = true;
@@ -49,8 +58,9 @@ export function SessionProvider({ children }) {
       openSignIn: () => setIsSignInOpen(true),
       signIn,
       signOut,
+      updateProfile,
     }),
-    [user, status, error, signIn, signOut]
+    [user, status, error, signIn, signOut, updateProfile]
   );
 
   return (

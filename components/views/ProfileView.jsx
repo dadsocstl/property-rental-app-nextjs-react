@@ -1,6 +1,7 @@
 'use client';
 
 import profileDefault from '@/assets/images/profile.png';
+import ProfileDetails from '@/components/ProfileDetails';
 import ProfileProperties from '@/components/ProfileProperties';
 import { DatabaseError } from '@/components/RequireSession';
 import Spinner from '@/components/Spinner';
@@ -28,12 +29,7 @@ const ProfileView = () => {
                   alt='User'
                 />
               </div>
-              <h2 className='text-2xl mb-4'>
-                <span className='font-bold block'>Name: </span> {session.user.name}
-              </h2>
-              <h2 className='text-2xl'>
-                <span className='font-bold block'>Email: </span> {session.user.email}
-              </h2>
+              <ProfileDetails user={session.user} />
             </div>
 
             <div className='md:w-3/4 md:pl-4'>
