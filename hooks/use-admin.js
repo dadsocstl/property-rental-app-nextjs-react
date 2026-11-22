@@ -16,6 +16,9 @@ function useAdminQuery(key, fetcher) {
 export const useOverview = () => useAdminQuery(['overview'], admin.getOverview);
 export const useLandlords = () => useAdminQuery(['landlords'], admin.getLandlords);
 export const useUnits = () => useAdminQuery(['units'], admin.getUnits);
+export const usePortfolio = () => useAdminQuery(['portfolio'], admin.getPortfolio);
+export const usePropertyDetail = (propertyId) => useAdminQuery(['property', propertyId], () => admin.getPropertyDetail(propertyId));
+export const useVacancies = () => useAdminQuery(['vacancies'], admin.getVacancies);
 export const useListingsForUnits = () => useAdminQuery(['listings'], admin.getListingsForUnits);
 export const useTenants = () => useAdminQuery(['tenants'], admin.getTenants);
 export const useLeases = () => useAdminQuery(['leases'], admin.getLeases);
