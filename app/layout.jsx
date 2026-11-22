@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 const display = Space_Grotesk({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
 
 export const metadata = {
-  title: 'PropertyRental | Find the perfect rental',
+  title: 'Timeless Carat Properties | Find the perfect rental',
   description: 'Browse, bookmark and list rental properties: apartments, cabins, lofts and homes for short or long stays.',
   keywords: 'rental, property, real estate, apartments, vacation rentals',
 };

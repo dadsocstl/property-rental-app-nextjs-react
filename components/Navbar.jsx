@@ -43,7 +43,7 @@ const Navbar = () => {
           <Link href='/' className='flex items-center gap-3'>
             <Image className='h-9 w-auto' src={logo} alt='' />
             <span className='font-display text-xl font-bold tracking-tight'>
-              Property<span className='text-primary'>Rental</span>
+              Timeless Carat <span className='text-primary'>Properties</span>
             </span>
           </Link>
           <ul className='hidden items-center gap-1 md:flex'>

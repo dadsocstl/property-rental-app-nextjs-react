@@ -11,7 +11,7 @@ const Footer = () => {
         <Link href='/' className='flex items-center gap-3'>
           <Image src={logo} alt='' className='h-8 w-auto' />
           <span className='font-display text-lg font-bold'>
-            Property<span className='text-primary'>Rental</span>
+            Timeless Carat <span className='text-primary'>Properties</span>
           </span>
         </Link>
         <ul className='flex gap-6 text-sm text-muted-foreground'>
@@ -26,7 +26,7 @@ const Footer = () => {
             </Link>
           </li>
         </ul>
-        <p className='text-sm text-muted-foreground'>&copy; {currentYear} PropertyRental. All rights reserved.</p>
+        <p className='text-sm text-muted-foreground'>&copy; {currentYear} Timeless Carat Properties. All rights reserved.</p>
       </div>
     </footer>
   );

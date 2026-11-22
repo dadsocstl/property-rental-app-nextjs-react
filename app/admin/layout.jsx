@@ -1,7 +1,7 @@
 import AdminShell from '@/components/admin/AdminShell';
 
 export const metadata = {
-  title: { default: 'Management | PropertyRental', template: '%s | Management' },
+  title: { default: 'Management | Timeless Carat Properties', template: '%s | Management' },
   description: 'Manage units, tenants, leases, rent collection, maintenance, and landlords.',
   robots: { index: false },
 };
