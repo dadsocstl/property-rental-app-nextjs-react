@@ -1,16 +1,31 @@
 'use client';
 
-import addMessage from '@/app/actions/addMessage';
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/context/SessionContext';
+import { refreshDb } from '@/hooks/use-data';
+import { addMessage } from '@/lib/data';
 import { useEffect } from 'react';
 import { useFormState } from 'react-dom';
 import { toast } from 'react-toastify';
 import SubmitMessageButton from './SubmitMessageButton';
 
 const PropertyContactForm = ({ property }) => {
-  const { data: session } = useSession();
+  const { session, userId } = useSession();
 
-  const [state, formAction] = useFormState(addMessage, {});
+  const [state, formAction] = useFormState(async (_previousState, formData) => {
+    try {
+      await addMessage(userId, {
+        propertyId: property._id,
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        body: formData.get('message'),
+      });
+      await refreshDb();
+      return { submitted: true };
+    } catch (error) {
+      return { error: error.message };
+    }
+  }, {});
 
   useEffect(() => {
     if (state.error) toast.error(state.error);
@@ -19,7 +34,7 @@ const PropertyContactForm = ({ property }) => {
 
   if (state.submitted) {
     return (
-      <p className='text-green-500 mb-4'>
+      <p className='text-primary mb-4'>
         Your message has been sent successfully
       </p>
     );
@@ -27,30 +42,18 @@ const PropertyContactForm = ({ property }) => {
 
   return (
     session && (
-      <div className='bg-white p-6 rounded-lg shadow-md'>
+      <div className='bg-card p-6 rounded-lg shadow-md'>
         <h3 className='text-xl font-bold mb-6'>Contact Property Manager</h3>
         <form action={formAction}>
-          <input
-            type='hidden'
-            id='property'
-            name='property'
-            defaultValue={property._id}
-          />
-          <input
-            type='hidden'
-            id='recipient'
-            name='recipient'
-            defaultValue={property.owner}
-          />
           <div className='mb-4'>
             <label
-              className='block text-gray-700 text-sm font-bold mb-2'
+              className='block text-foreground text-sm font-bold mb-2'
               htmlFor='name'
             >
               Name:
             </label>
             <input
-              className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+              className='shadow appearance-none border rounded w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:shadow-outline'
               id='name'
               name='name'
               type='text'
@@ -60,13 +63,13 @@ const PropertyContactForm = ({ property }) => {
           </div>
           <div className='mb-4'>
             <label
-              className='block text-gray-700 text-sm font-bold mb-2'
+              className='block text-foreground text-sm font-bold mb-2'
               htmlFor='email'
             >
               Email:
             </label>
             <input
-              className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+              className='shadow appearance-none border rounded w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:shadow-outline'
               id='email'
               name='email'
               type='email'
@@ -76,13 +79,13 @@ const PropertyContactForm = ({ property }) => {
           </div>
           <div className='mb-4'>
             <label
-              className='block text-gray-700 text-sm font-bold mb-2'
+              className='block text-foreground text-sm font-bold mb-2'
               htmlFor='phone'
             >
               Phone:
             </label>
             <input
-              className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+              className='shadow appearance-none border rounded w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:shadow-outline'
               id='phone'
               name='phone'
               type='text'
@@ -91,13 +94,13 @@ const PropertyContactForm = ({ property }) => {
           </div>
           <div className='mb-4'>
             <label
-              className='block text-gray-700 text-sm font-bold mb-2'
+              className='block text-foreground text-sm font-bold mb-2'
               htmlFor='message'
             >
               Message:
             </label>
             <textarea
-              className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-44 focus:outline-none focus:shadow-outline'
+              className='shadow appearance-none border rounded w-full py-2 px-3 text-foreground h-44 focus:outline-none focus:shadow-outline'
               id='message'
               name='message'
               placeholder='Enter your message'

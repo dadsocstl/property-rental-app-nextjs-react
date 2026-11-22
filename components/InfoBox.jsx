@@ -1,20 +1,38 @@
-const InfoBox = ({
-  heading,
-  backgroundColor = 'bg-gray-100',
-  textColor = 'text-gray-800',
-  buttonInfo,
-  children,
-}) => {
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+
+const InfoBox = ({ heading, eyebrow, highlight = false, buttonInfo, children }) => {
   return (
-    <div className={`${backgroundColor} p-6 rounded-lg shadow-md`}>
-      <h2 className={`${textColor} text-2xl font-bold`}>{heading}</h2>
-      <p className={`${textColor} mt-2 mb-4`}>{children}</p>
-      <a
-        href={buttonInfo.link}
-        className={`inline-block ${buttonInfo.backgroundColor} text-white rounded-lg px-4 py-2 hover:opacity-80`}
+    <div
+      className={cn(
+        'flex flex-col items-start gap-4 rounded-2xl border p-8 md:p-10',
+        highlight ? 'border-primary bg-primary text-primary-foreground' : 'bg-card text-card-foreground'
+      )}
+    >
+      <p
+        className={cn(
+          'text-xs font-semibold uppercase tracking-[0.25em]',
+          highlight ? 'text-primary-foreground/70' : 'text-primary'
+        )}
       >
-        {buttonInfo.text}
-      </a>
+        {eyebrow}
+      </p>
+      <h2 className='font-display text-3xl font-bold md:text-4xl'>{heading}</h2>
+      <p className={cn('max-w-md leading-relaxed', highlight ? 'text-primary-foreground/80' : 'text-muted-foreground')}>
+        {children}
+      </p>
+      <Button
+        asChild
+        variant={highlight ? 'secondary' : 'default'}
+        className={cn('mt-2', highlight && 'bg-background text-foreground hover:bg-secondary')}
+      >
+        <Link href={buttonInfo.link}>
+          {buttonInfo.text}
+          <ArrowRight />
+        </Link>
+      </Button>
     </div>
   );
 };

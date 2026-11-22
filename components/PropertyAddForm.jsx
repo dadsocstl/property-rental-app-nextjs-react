@@ -1,14 +1,41 @@
 'use client';
 
-import addProperty from '@/app/actions/addProperty';
+import { useSession } from '@/context/SessionContext';
+import { refreshDb } from '@/hooks/use-data';
+import { addProperty } from '@/lib/data';
+import { imagesFromForm, propertyFromForm } from '@/lib/property-form';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const PropertyAddForm = () => {
+  const { userId } = useSession();
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    setPending(true);
+    try {
+      const property = propertyFromForm(formData);
+      property.images = await imagesFromForm(formData);
+      const id = await addProperty(userId, property);
+      await refreshDb();
+      toast.success('Property added');
+      router.push(`/properties/${id}`);
+    } catch (error) {
+      toast.error(error.message);
+      setPending(false);
+    }
+  };
+
   return (
-    <form action={addProperty}>
+    <form onSubmit={handleSubmit}>
       <h2 className='text-3xl text-center font-semibold mb-6'>Add Property</h2>
 
       <div className='mb-4'>
-        <label htmlFor='type' className='block text-gray-700 font-bold mb-2'>
+        <label htmlFor='type' className='block text-foreground font-bold mb-2'>
           Property Type
         </label>
         <select
@@ -27,7 +54,7 @@ const PropertyAddForm = () => {
         </select>
       </div>
       <div className='mb-4'>
-        <label className='block text-gray-700 font-bold mb-2'>
+        <label className='block text-foreground font-bold mb-2'>
           Listing Name
         </label>
         <input
@@ -42,7 +69,7 @@ const PropertyAddForm = () => {
       <div className='mb-4'>
         <label
           htmlFor='description'
-          className='block text-gray-700 font-bold mb-2'
+          className='block text-foreground font-bold mb-2'
         >
           Description
         </label>
@@ -55,8 +82,8 @@ const PropertyAddForm = () => {
         ></textarea>
       </div>
 
-      <div className='mb-4 bg-blue-50 p-4'>
-        <label className='block text-gray-700 font-bold mb-2'>Location</label>
+      <div className='mb-4 bg-background p-4'>
+        <label className='block text-foreground font-bold mb-2'>Location</label>
         <input
           type='text'
           id='street'
@@ -91,7 +118,7 @@ const PropertyAddForm = () => {
 
       <div className='mb-4 flex flex-wrap'>
         <div className='w-full sm:w-1/3 pr-2'>
-          <label htmlFor='beds' className='block text-gray-700 font-bold mb-2'>
+          <label htmlFor='beds' className='block text-foreground font-bold mb-2'>
             Beds
           </label>
           <input
@@ -103,7 +130,7 @@ const PropertyAddForm = () => {
           />
         </div>
         <div className='w-full sm:w-1/3 px-2'>
-          <label htmlFor='baths' className='block text-gray-700 font-bold mb-2'>
+          <label htmlFor='baths' className='block text-foreground font-bold mb-2'>
             Baths
           </label>
           <input
@@ -117,7 +144,7 @@ const PropertyAddForm = () => {
         <div className='w-full sm:w-1/3 pl-2'>
           <label
             htmlFor='square_feet'
-            className='block text-gray-700 font-bold mb-2'
+            className='block text-foreground font-bold mb-2'
           >
             Square Feet
           </label>
@@ -132,7 +159,7 @@ const PropertyAddForm = () => {
       </div>
 
       <div className='mb-4'>
-        <label className='block text-gray-700 font-bold mb-2'>Amenities</label>
+        <label className='block text-foreground font-bold mb-2'>Amenities</label>
         <div className='grid grid-cols-2 md:grid-cols-3 gap-2'>
           <div>
             <input
@@ -291,8 +318,8 @@ const PropertyAddForm = () => {
         </div>
       </div>
 
-      <div className='mb-4 bg-blue-50 p-4'>
-        <label className='block text-gray-700 font-bold mb-2'>
+      <div className='mb-4 bg-background p-4'>
+        <label className='block text-foreground font-bold mb-2'>
           Rates (Leave blank if not applicable)
         </label>
         <div className='flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4'>
@@ -335,14 +362,14 @@ const PropertyAddForm = () => {
       <div className='mb-4'>
         <label
           htmlFor='seller_name'
-          className='block text-gray-700 font-bold mb-2'
+          className='block text-foreground font-bold mb-2'
         >
           Seller Name
         </label>
         <input
           type='text'
           id='seller_name'
-          name='seller_info.name.'
+          name='seller_info.name'
           className='border rounded w-full py-2 px-3'
           placeholder='Name'
         />
@@ -350,7 +377,7 @@ const PropertyAddForm = () => {
       <div className='mb-4'>
         <label
           htmlFor='seller_email'
-          className='block text-gray-700 font-bold mb-2'
+          className='block text-foreground font-bold mb-2'
         >
           Seller Email
         </label>
@@ -366,7 +393,7 @@ const PropertyAddForm = () => {
       <div className='mb-4'>
         <label
           htmlFor='seller_phone'
-          className='block text-gray-700 font-bold mb-2'
+          className='block text-foreground font-bold mb-2'
         >
           Seller Phone
         </label>
@@ -380,7 +407,7 @@ const PropertyAddForm = () => {
       </div>
 
       <div className='mb-4'>
-        <label htmlFor='images' className='block text-gray-700 font-bold mb-2'>
+        <label htmlFor='images' className='block text-foreground font-bold mb-2'>
           Images (Select up to 4 images)
         </label>
         <input
@@ -396,10 +423,11 @@ const PropertyAddForm = () => {
 
       <div>
         <button
-          className='bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline'
+          className='bg-primary hover:bg-accent text-primary-foreground font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline disabled:opacity-60'
           type='submit'
+          disabled={pending}
         >
-          Add Property
+          {pending ? 'Saving...' : 'Add Property'}
         </button>
       </div>
     </form>

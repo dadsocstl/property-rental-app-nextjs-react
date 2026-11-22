@@ -1,71 +1,79 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { MapPin, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+
+const PROPERTY_TYPES = [
+  ['All', 'All types'],
+  ['Apartment', 'Apartment'],
+  ['Studio', 'Studio'],
+  ['Condo', 'Condo'],
+  ['House', 'House'],
+  ['Cabin Or Cottage', 'Cabin or Cottage'],
+  ['Loft', 'Loft'],
+  ['Room', 'Room'],
+  ['Other', 'Other'],
+];
 
 const PropertySearchForm = () => {
   const [location, setLocation] = useState('');
   const [propertyType, setPropertyType] = useState('All');
-
   const router = useRouter();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (location === '' && propertyType === 'All') {
       router.push('/properties');
-    } else {
-      const query = `?location=${location}&propertyType=${propertyType}`;
-
-      router.push(`/properties/search-results${query}`);
+      return;
     }
+    const query = new URLSearchParams({ location, propertyType });
+    router.push(`/properties/search-results?${query}`);
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className='mt-3 mx-auto max-w-2xl w-full flex flex-col md:flex-row items-center'
+      role='search'
+      className='flex w-full flex-col gap-2 rounded-2xl border border-border bg-card/90 p-2 shadow-2xl backdrop-blur md:flex-row md:items-center md:rounded-full'
     >
-      <div className='w-full md:w-3/5 md:pr-2 mb-4 md:mb-0'>
+      <div className='relative flex-1'>
         <label htmlFor='location' className='sr-only'>
           Location
         </label>
-        <input
-          type='text'
+        <MapPin className='pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-primary' />
+        <Input
           id='location'
-          placeholder='Enter Keywords or Location'
-          className='w-full px-4 py-3 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring focus:ring-blue-500'
+          placeholder='City, state or keyword'
+          className='h-12 rounded-full border-0 bg-transparent pl-11 focus-visible:ring-1'
           value={location}
           onChange={(e) => setLocation(e.target.value)}
         />
       </div>
-      <div className='w-full md:w-2/5 md:pl-2'>
+      <div className='hidden h-8 w-px bg-border md:block' />
+      <div className='md:w-52'>
         <label htmlFor='property-type' className='sr-only'>
           Property Type
         </label>
         <select
           id='property-type'
-          className='w-full px-4 py-3 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring focus:ring-blue-500'
+          className='h-12 w-full rounded-full bg-transparent px-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
           value={propertyType}
           onChange={(e) => setPropertyType(e.target.value)}
         >
-          <option value='All'>All</option>
-          <option value='Apartment'>Apartment</option>
-          <option value='Studio'>Studio</option>
-          <option value='Condo'>Condo</option>
-          <option value='House'>House</option>
-          <option value='Cabin Or Cottage'>Cabin or Cottage</option>
-          <option value='Loft'>Loft</option>
-          <option value='Room'>Room</option>
-          <option value='Other'>Other</option>
+          {PROPERTY_TYPES.map(([value, label]) => (
+            <option key={value} value={value} className='bg-card'>
+              {label}
+            </option>
+          ))}
         </select>
       </div>
-      <button
-        type='submit'
-        className='md:ml-4 mt-4 md:mt-0 w-full md:w-auto px-6 py-3 rounded-lg bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-500'
-      >
+      <Button type='submit' size='lg' className='h-12'>
+        <Search />
         Search
-      </button>
+      </Button>
     </form>
   );
 };

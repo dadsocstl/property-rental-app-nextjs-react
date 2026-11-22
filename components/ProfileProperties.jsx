@@ -1,13 +1,14 @@
 'use client';
 
-import deleteProperty from '@/app/actions/deleteProperty';
+import { useSession } from '@/context/SessionContext';
+import { refreshDb } from '@/hooks/use-data';
+import { deleteProperty } from '@/lib/data';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-const ProfileProperties = ({ properties: initialProperties }) => {
-  const [properties, setProperties] = useState(initialProperties);
+const ProfileProperties = ({ properties }) => {
+  const { userId } = useSession();
 
   const handleDeleteProperty = async (propertyId) => {
     const confirmed = window.confirm(
@@ -16,17 +17,13 @@ const ProfileProperties = ({ properties: initialProperties }) => {
 
     if (!confirmed) return;
 
-    const deletePropertyById = deleteProperty.bind(null, propertyId);
-
-    await deletePropertyById();
-
-    toast.success('Property Deleted');
-
-    const updatedProperties = properties.filter(
-      (property) => property._id !== propertyId
-    );
-
-    setProperties(updatedProperties);
+    try {
+      await deleteProperty(userId, propertyId);
+      await refreshDb();
+      toast.success('Property Deleted');
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return properties.map((property) => (
@@ -43,7 +40,7 @@ const ProfileProperties = ({ properties: initialProperties }) => {
       </Link>
       <div className='mt-2'>
         <p className='text-lg font-semibold'>{property.name}</p>
-        <p className='text-gray-600'>
+        <p className='text-muted-foreground'>
           Address: {property.location.street} {property.location.city}{' '}
           {property.location.state}
         </p>
@@ -51,13 +48,13 @@ const ProfileProperties = ({ properties: initialProperties }) => {
       <div className='mt-2'>
         <Link
           href={`/properties/${property._id}/edit`}
-          className='bg-blue-500 text-white px-3 py-3 rounded-md mr-2 hover:bg-blue-600'
+          className='bg-primary text-primary-foreground px-3 py-3 rounded-md mr-2 hover:bg-accent'
         >
           Edit
         </Link>
         <button
           onClick={() => handleDeleteProperty(property._id)}
-          className='bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600'
+          className='bg-destructive text-destructive-foreground px-3 py-2 rounded-md hover:bg-destructive/90'
           type='button'
         >
           Delete

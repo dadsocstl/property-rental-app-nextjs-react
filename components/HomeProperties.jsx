@@ -1,45 +1,42 @@
-import connectDB from '@/config/database';
-import Property from '@/models/Property';
+'use client';
+
+import Reveal from '@/components/motion/Reveal';
+import { DatabaseError } from '@/components/RequireSession';
+import SectionHeading from '@/components/SectionHeading';
+import Spinner from '@/components/Spinner';
+import { Button } from '@/components/ui/button';
+import { useRecentProperties } from '@/hooks/use-data';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import PropertyCard from './PropertyCard';
 
-const HomeProperties = async () => {
-  await connectDB();
-
-  // Get the 3 latest properties
-  const recentProperties = await Property.find({})
-    .sort({ createdAt: -1 })
-    .limit(3)
-    .lean();
+const HomeProperties = () => {
+  const { data: recentProperties, error, isLoading } = useRecentProperties();
 
   return (
-    <>
-      <section className='px-4 py-6'>
-        <div className='container-xl lg:container m-auto'>
-          <h2 className='text-3xl font-bold text-blue-500 mb-6 text-center'>
-            Recent Properties
-          </h2>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-            {recentProperties.length === 0 ? (
-              <p>No Properties Found</p>
-            ) : (
-              recentProperties.map((property) => (
-                <PropertyCard key={property._id} property={property} />
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section className='m-auto max-w-lg my-10 px-6'>
-        <Link
-          href='/properties'
-          className='block bg-black text-white text-center py-4 px-6 rounded-xl hover:bg-gray-700'
-        >
-          View All Properties
-        </Link>
-      </section>
-    </>
+    <section className='container flex flex-col gap-10 py-20'>
+      <div className='flex flex-col justify-between gap-6 md:flex-row md:items-end'>
+        <SectionHeading eyebrow='Just listed' title='Recent properties' />
+        <Button asChild variant='outline'>
+          <Link href='/properties'>
+            View all properties <ArrowRight />
+          </Link>
+        </Button>
+      </div>
+      {error ? (
+        <DatabaseError error={error} />
+      ) : isLoading ? (
+        <Spinner loading />
+      ) : recentProperties.length === 0 ? (
+        <p className='text-muted-foreground'>No properties found.</p>
+      ) : (
+        <Reveal className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+          {recentProperties.map((property) => (
+            <PropertyCard key={property._id} property={property} />
+          ))}
+        </Reveal>
+      )}
+    </section>
   );
 };
 

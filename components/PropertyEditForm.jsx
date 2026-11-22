@@ -1,14 +1,34 @@
-import updateProperty from '@/app/actions/updateProperty';
+'use client';
+
+import { useSession } from '@/context/SessionContext';
+import { refreshDb } from '@/hooks/use-data';
+import { updateProperty } from '@/lib/data';
+import { propertyFromForm } from '@/lib/property-form';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const PropertyEditForm = ({ property }) => {
-  const updatePropertyById = updateProperty.bind(null, property._id);
+  const { userId } = useSession();
+  const router = useRouter();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await updateProperty(userId, property._id, propertyFromForm(new FormData(event.currentTarget)));
+      await refreshDb();
+      toast.success('Property updated');
+      router.push(`/properties/${property._id}`);
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
-    <form action={updatePropertyById}>
+    <form onSubmit={handleSubmit}>
       <h2 className='text-3xl text-center font-semibold mb-6'>Edit Property</h2>
 
       <div className='mb-4'>
-        <label htmlFor='type' className='block text-gray-700 font-bold mb-2'>
+        <label htmlFor='type' className='block text-foreground font-bold mb-2'>
           Property Type
         </label>
         <select
@@ -28,7 +48,7 @@ const PropertyEditForm = ({ property }) => {
         </select>
       </div>
       <div className='mb-4'>
-        <label className='block text-gray-700 font-bold mb-2'>
+        <label className='block text-foreground font-bold mb-2'>
           Listing Name
         </label>
         <input
@@ -44,7 +64,7 @@ const PropertyEditForm = ({ property }) => {
       <div className='mb-4'>
         <label
           htmlFor='description'
-          className='block text-gray-700 font-bold mb-2'
+          className='block text-foreground font-bold mb-2'
         >
           Description
         </label>
@@ -58,8 +78,8 @@ const PropertyEditForm = ({ property }) => {
         ></textarea>
       </div>
 
-      <div className='mb-4 bg-blue-50 p-4'>
-        <label className='block text-gray-700 font-bold mb-2'>Location</label>
+      <div className='mb-4 bg-background p-4'>
+        <label className='block text-foreground font-bold mb-2'>Location</label>
         <input
           type='text'
           id='street'
@@ -98,7 +118,7 @@ const PropertyEditForm = ({ property }) => {
 
       <div className='mb-4 flex flex-wrap'>
         <div className='w-full sm:w-1/3 pr-2'>
-          <label htmlFor='beds' className='block text-gray-700 font-bold mb-2'>
+          <label htmlFor='beds' className='block text-foreground font-bold mb-2'>
             Beds
           </label>
           <input
@@ -111,7 +131,7 @@ const PropertyEditForm = ({ property }) => {
           />
         </div>
         <div className='w-full sm:w-1/3 px-2'>
-          <label htmlFor='baths' className='block text-gray-700 font-bold mb-2'>
+          <label htmlFor='baths' className='block text-foreground font-bold mb-2'>
             Baths
           </label>
           <input
@@ -126,7 +146,7 @@ const PropertyEditForm = ({ property }) => {
         <div className='w-full sm:w-1/3 pl-2'>
           <label
             htmlFor='square_feet'
-            className='block text-gray-700 font-bold mb-2'
+            className='block text-foreground font-bold mb-2'
           >
             Square Feet
           </label>
@@ -142,7 +162,7 @@ const PropertyEditForm = ({ property }) => {
       </div>
 
       <div className='mb-4'>
-        <label className='block text-gray-700 font-bold mb-2'>Amenities</label>
+        <label className='block text-foreground font-bold mb-2'>Amenities</label>
         <div className='grid grid-cols-2 md:grid-cols-3 gap-2'>
           <div>
             <input
@@ -318,8 +338,8 @@ const PropertyEditForm = ({ property }) => {
         </div>
       </div>
 
-      <div className='mb-4 bg-blue-50 p-4'>
-        <label className='block text-gray-700 font-bold mb-2'>
+      <div className='mb-4 bg-background p-4'>
+        <label className='block text-foreground font-bold mb-2'>
           Rates (Leave blank if not applicable)
         </label>
         <div className='flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4'>
@@ -365,14 +385,14 @@ const PropertyEditForm = ({ property }) => {
       <div className='mb-4'>
         <label
           htmlFor='seller_name'
-          className='block text-gray-700 font-bold mb-2'
+          className='block text-foreground font-bold mb-2'
         >
           Seller Name
         </label>
         <input
           type='text'
           id='seller_name'
-          name='seller_info.name.'
+          name='seller_info.name'
           className='border rounded w-full py-2 px-3'
           placeholder='Name'
           defaultValue={property.seller_info.name}
@@ -381,7 +401,7 @@ const PropertyEditForm = ({ property }) => {
       <div className='mb-4'>
         <label
           htmlFor='seller_email'
-          className='block text-gray-700 font-bold mb-2'
+          className='block text-foreground font-bold mb-2'
         >
           Seller Email
         </label>
@@ -398,7 +418,7 @@ const PropertyEditForm = ({ property }) => {
       <div className='mb-4'>
         <label
           htmlFor='seller_phone'
-          className='block text-gray-700 font-bold mb-2'
+          className='block text-foreground font-bold mb-2'
         >
           Seller Phone
         </label>
@@ -413,7 +433,7 @@ const PropertyEditForm = ({ property }) => {
       </div>
       <div>
         <button
-          className='bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline'
+          className='bg-primary hover:bg-accent text-primary-foreground font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline'
           type='submit'
         >
           Update Property
