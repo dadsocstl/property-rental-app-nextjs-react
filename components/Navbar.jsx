@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useSession } from '@/context/SessionContext';
 import { cn } from '@/lib/utils';
-import { Bell, Bookmark, LogOut, Menu, Plus, User, UserRoundCog, X } from 'lucide-react';
+import { Bell, Bookmark, Building2, LogOut, Menu, Plus, User, UserRoundCog, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -106,6 +106,13 @@ const Navbar = () => {
                     <span className='block text-xs font-normal text-muted-foreground'>{session.user.email}</span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  {session.user.role === 'admin' && (
+                    <DropdownMenuItem asChild>
+                      <Link href='/admin'>
+                        <Building2 /> Management
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link href='/profile'>
                       <User /> Your Profile
