@@ -51,6 +51,11 @@ function Session({ apiKey, agent, onChangeAgent }) {
       if (!event.message) return;
       setMessages((prev) => [...prev, { role: event.source === 'user' ? 'user' : 'assistant', content: event.message }]);
     },
+    onDisconnect: (details) => {
+      if (details?.reason === 'error') {
+        setError(details.message || 'The agent closed the connection.');
+      }
+    },
     onError: (err) => setError(typeof err === 'string' ? err : err?.message || 'The conversation hit an error.'),
   });
 
@@ -76,7 +81,7 @@ function Session({ apiKey, agent, onChangeAgent }) {
         startSession({
           signedUrl,
           connectionType: 'websocket',
-          overrides: { conversation: { textOnly: true }, agent: { firstMessage: '' } },
+          overrides: { conversation: { textOnly: true } },
         });
       } catch (err) {
         setError(err.message);
