@@ -1,5 +1,5 @@
 import lockup from '@/public/images/brand/logo-lockup-dark.png';
-import tile from '@/public/images/brand/logo-tile.png';
+import mark from '@/public/images/brand/logo-mark.png';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -17,10 +17,10 @@ export const BrandLockup = ({ className, priority = false }) => (
 
 export const BrandMark = ({ className, priority = false }) => (
   <Image
-    src={tile}
+    src={mark}
     alt={BRAND_NAME}
     priority={priority}
     sizes='64px'
-    className={cn('size-10 rounded-xl', className)}
+    className={cn('h-10 w-auto', className)}
   />
 );
