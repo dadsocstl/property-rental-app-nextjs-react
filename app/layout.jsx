@@ -1,5 +1,6 @@
 import '@/assets/styles/globals.css';
 import AuthProvider from '@/components/AuthProvider';
+import ChunkReloadGuard from '@/components/ChunkReloadGuard';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import { Inter, Space_Grotesk } from 'next/font/google';
@@ -38,6 +39,7 @@ const MainLayout = ({ children }) => {
           <Footer />
           <ToastContainer theme='dark' position='bottom-right' />
         </AuthProvider>
+        <ChunkReloadGuard />
       </body>
     </html>
   );
