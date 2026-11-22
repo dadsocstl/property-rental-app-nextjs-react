@@ -1,4 +1,5 @@
 import '@/assets/styles/globals.css';
+import AgentChatLauncher from '@/components/agent-chat/AgentChatLauncher';
 import AuthProvider from '@/components/AuthProvider';
 import ChunkReloadGuard from '@/components/ChunkReloadGuard';
 import Footer from '@/components/Footer';
@@ -40,6 +41,7 @@ const MainLayout = ({ children }) => {
           <main className='flex-1'>{children}</main>
           <Footer />
           <ToastContainer theme='dark' position='bottom-right' />
+          <AgentChatLauncher />
         </AuthProvider>
         <ChunkReloadGuard />
         <Analytics />
