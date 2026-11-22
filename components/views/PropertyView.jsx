@@ -8,6 +8,7 @@ import PropertyImages from '@/components/PropertyImages';
 import { DatabaseError } from '@/components/RequireSession';
 import ShareButtons from '@/components/ShareButtons';
 import Spinner from '@/components/Spinner';
+import { Button } from '@/components/ui/button';
 import { useProperty } from '@/hooks/use-data';
 import Link from 'next/link';
 import { FaArrowLeft } from 'react-icons/fa';
@@ -36,6 +37,9 @@ const PropertyView = ({ id }) => {
           <div className='grid grid-cols-1 md:grid-cols-70/30 w-full gap-6'>
             <PropertyDetails property={property} />
             <aside className='space-y-4'>
+              <Button asChild size='lg' className='w-full'>
+                <Link href={`/apply?property=${property._id}`}>Apply for this property</Link>
+              </Button>
               <BookmarkButton property={property} />
               <ShareButtons property={property} />
               <PropertyContactForm property={property} />
