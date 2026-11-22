@@ -13,15 +13,42 @@ import {
   monthLabel,
   shortDate,
 } from '@/components/admin/primitives';
+import WorkTicketDialog from '@/components/renter/WorkTicketDialog';
+import WorkTickets from '@/components/renter/WorkTickets';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/context/SessionContext';
 import { useRenterAccount } from '@/hooks/use-renter';
 import { DEV_ACCOUNTS } from '@/lib/dev';
-import { CreditCard } from 'lucide-react';
+import { buildReceiptPdf, downloadPdf } from '@/lib/receipt';
+import { CreditCard, Download } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const PayDialog = dynamic(() => import('@/components/renter/PayDialog'), { ssr: false });
+
+const COMPANY = 'Timeless Carat Properties';
+
+/** Builds and downloads a PDF covering `payments` made against one charge. */
+function downloadReceipt(account, charge, payments, number) {
+  try {
+    const { tenant, user, lease } = account;
+    const bytes = buildReceiptPdf({
+      number,
+      company: COMPANY,
+      tenantName: [tenant.first_name, tenant.last_name].filter(Boolean).join(' ') || user.email,
+      email: tenant.email ?? user.email,
+      property: charge.property_name ?? lease?.property_name,
+      unit: charge.unit_name ?? lease?.unit_name,
+      charge,
+      payments,
+      issuedOn: new Date().toISOString(),
+    });
+    downloadPdf(bytes, `receipt-${number.toLowerCase()}.pdf`);
+  } catch (error) {
+    toast.error(`Could not create the receipt: ${error.message}`);
+  }
+}
 
 const METHOD_LABELS = { ach: 'Bank transfer (ACH)', card: 'Card', check: 'Check', cash: 'Cash', other: 'Other' };
 
@@ -71,6 +98,9 @@ export default function RenterDashboard() {
             : 'Review what you owe and pay securely online.'
         }
       >
+        {account?.lease && (
+          <WorkTicketDialog unitLabel={`${account.lease.unit_name}, ${account.lease.property_name}`} />
+        )}
         {nextDue && (
           <Button size='lg' onClick={() => setPaying(nextDue)}>
             <CreditCard /> Pay {money(nextDue.balance_cents, { precise: true })}
@@ -126,6 +156,23 @@ export default function RenterDashboard() {
                             <span className='sr-only'> {monthLabel(charge.period)}</span>
                           </Button>
                         )}
+                        {charge.status === 'paid' && (
+                          <Button
+                            size='sm'
+                            variant='outline'
+                            onClick={() =>
+                              downloadReceipt(
+                                account,
+                                charge,
+                                account.payments.filter((p) => p.charge_id === charge.id),
+                                `INV-${charge.period}-${charge.id}`
+                              )
+                            }
+                          >
+                            <Download /> Receipt
+                            <span className='sr-only'> for {monthLabel(charge.period)}</span>
+                          </Button>
+                        )}
                       </Td>
                     </tr>
                   ))}
@@ -143,10 +190,13 @@ export default function RenterDashboard() {
                     <Th>Method</Th>
                     <Th>Reference</Th>
                     <Th className='text-right'>Amount</Th>
+                    <Th>
+                      <span className='sr-only'>Receipt</span>
+                    </Th>
                   </tr>
                 </thead>
                 <tbody>
-                  {account.payments.length === 0 && <EmptyRow colSpan={5}>No payments yet.</EmptyRow>}
+                  {account.payments.length === 0 && <EmptyRow colSpan={6}>No payments yet.</EmptyRow>}
                   {account.payments.map((payment) => (
                     <tr key={payment.id}>
                       <Td>{shortDate(payment.paid_on)}</Td>
@@ -154,11 +204,31 @@ export default function RenterDashboard() {
                       <Td>{METHOD_LABELS[payment.method] ?? humanize(payment.method)}</Td>
                       <Td className='max-w-[14rem] truncate text-muted-foreground'>{payment.reference ?? '—'}</Td>
                       <Td className='text-right font-medium tabular-nums'>{money(payment.amount_cents, { precise: true })}</Td>
+                      <Td className='text-right'>
+                        <Button
+                          size='sm'
+                          variant='outline'
+                          onClick={() => {
+                            const charge = account.charges.find((c) => c.id === payment.charge_id);
+                            if (charge) {
+                              downloadReceipt(account, charge, [payment], `RCT-${String(payment.id).padStart(5, '0')}`);
+                            }
+                          }}
+                        >
+                          <Download /> Receipt
+                          <span className='sr-only'> for payment on {shortDate(payment.paid_on)}</span>
+                        </Button>
+                      </Td>
                     </tr>
                   ))}
                 </tbody>
               </TableShell>
             </div>
+
+            <WorkTickets
+              tickets={account.workOrders}
+              unitLabel={account.lease ? `${account.lease.unit_name}, ${account.lease.property_name}` : undefined}
+            />
           </>
         )}
       </QueryState>
