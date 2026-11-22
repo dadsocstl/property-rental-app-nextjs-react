@@ -3,6 +3,7 @@ import AuthProvider from '@/components/AuthProvider';
 import ChunkReloadGuard from '@/components/ChunkReloadGuard';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import { Analytics } from '@vercel/analytics/next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import '@flaticon/flaticon-uicons/css/regular/rounded.css';
 import 'photoswipe/dist/photoswipe.css';
@@ -41,6 +42,7 @@ const MainLayout = ({ children }) => {
           <ToastContainer theme='dark' position='bottom-right' />
         </AuthProvider>
         <ChunkReloadGuard />
+        <Analytics />
       </body>
     </html>
   );
