@@ -1,89 +1,100 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { DEV_ACCOUNTS, DEV_BYPASS } from '@/lib/dev';
+import { useState } from 'react';
 
-const SignInDialog = ({ open, onClose, onSubmit }) => {
-  const dialogRef = useRef(null);
+const SignInDialog = ({ open, onOpenChange, onSubmit }) => {
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
-  }, [open]);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+  const submit = async (credentials) => {
     setPending(true);
     setError('');
     try {
-      await onSubmit({ username: formData.get('username'), email: formData.get('email') });
-      event.target.reset();
+      await onSubmit(credentials);
+      return true;
     } catch (err) {
       setError(err.message);
+      return false;
     } finally {
       setPending(false);
     }
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const ok = await submit({ username: formData.get('username'), email: formData.get('email') });
+    if (ok) form.reset();
+  };
+
   return (
-    <dialog
-      ref={dialogRef}
-      onClose={onClose}
-      aria-labelledby='sign-in-title'
-      className='w-full max-w-md rounded-xl p-0 shadow-xl backdrop:bg-black/50'
-    >
-      <form onSubmit={handleSubmit} className='flex flex-col gap-4 p-6'>
-        <div className='flex flex-col gap-1'>
-          <h2 id='sign-in-title' className='text-2xl font-bold text-gray-900'>
-            Login or Register
-          </h2>
-          <p className='text-sm leading-relaxed text-gray-600'>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Login or Register</DialogTitle>
+          <DialogDescription>
             Your profile, listings, bookmarks and messages are stored in a SQL database in this browser.
-          </p>
-        </div>
-        <label className='flex flex-col gap-1 text-sm font-bold text-gray-700'>
-          Name
-          <input
-            name='username'
-            required
-            maxLength={20}
-            autoComplete='name'
-            className='rounded border px-3 py-2 font-normal text-gray-700'
-          />
-        </label>
-        <label className='flex flex-col gap-1 text-sm font-bold text-gray-700'>
-          Email
-          <input
-            name='email'
-            type='email'
-            required
-            autoComplete='email'
-            className='rounded border px-3 py-2 font-normal text-gray-700'
-          />
-        </label>
-        {error && (
-          <p role='alert' className='text-sm text-red-600'>
-            {error}
-          </p>
+          </DialogDescription>
+        </DialogHeader>
+
+        {DEV_BYPASS && (
+          <div className='flex flex-col gap-2 rounded-lg border border-dashed border-primary/60 p-3'>
+            <p className='text-xs font-semibold uppercase tracking-wider text-primary'>Dev quick sign-in</p>
+            <div className='flex flex-wrap gap-2'>
+              {DEV_ACCOUNTS.map((account) => (
+                <Button
+                  key={account.email}
+                  type='button'
+                  size='sm'
+                  variant='secondary'
+                  disabled={pending}
+                  onClick={() => submit(account)}
+                >
+                  {account.username}
+                </Button>
+              ))}
+            </div>
+          </div>
         )}
-        <div className='flex justify-end gap-2'>
-          <button type='button' onClick={onClose} className='rounded-md px-4 py-2 text-gray-700 hover:bg-gray-100'>
-            Cancel
-          </button>
-          <button
-            type='submit'
-            disabled={pending}
-            className='rounded-md bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600 disabled:opacity-60'
-          >
-            {pending ? 'Signing in...' : 'Continue'}
-          </button>
-        </div>
-      </form>
-    </dialog>
+
+        <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
+          <div className='flex flex-col gap-2'>
+            <Label htmlFor='sign-in-name'>Name</Label>
+            <Input id='sign-in-name' name='username' required maxLength={20} autoComplete='name' />
+          </div>
+          <div className='flex flex-col gap-2'>
+            <Label htmlFor='sign-in-email'>Email</Label>
+            <Input id='sign-in-email' name='email' type='email' required autoComplete='email' />
+          </div>
+          {error && (
+            <p role='alert' className='text-sm text-destructive'>
+              {error}
+            </p>
+          )}
+          <DialogFooter>
+            <Button type='button' variant='ghost' onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type='submit' disabled={pending}>
+              {pending ? 'Signing in...' : 'Continue'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

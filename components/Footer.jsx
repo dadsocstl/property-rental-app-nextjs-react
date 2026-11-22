@@ -1,30 +1,32 @@
-import logo from '@/assets/images/logo.png';
+import logo from '@/assets/images/logo-white.png';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className='bg-gray-200 py-4 mt-24'>
-      <div className='container mx-auto flex flex-col md:flex-row items-center justify-between px-4'>
-        <div className='mb-4 md:mb-0'>
-          <Image src={logo} alt='Logo' className='h-8 w-auto' />
-        </div>
-        <div className='flex flex-wrap justify-center md:justify-start mb-4 md:mb-0'>
-          <ul className='flex space-x-4'>
-            <li>
-              <a href='/properties'>Properties</a>
-            </li>
-            <li>
-              <a href='/terms'>Terms of Service</a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <p className='text-sm text-gray-500 mt-2 md:mt-0'>
-            &copy; {currentYear} PropertyRental. All rights reserved.
-          </p>
-        </div>
+    <footer className='mt-24 border-t border-border bg-muted'>
+      <div className='container flex flex-col items-center justify-between gap-6 py-10 md:flex-row'>
+        <Link href='/' className='flex items-center gap-3'>
+          <Image src={logo} alt='' className='h-8 w-auto' />
+          <span className='font-display text-lg font-bold'>
+            Property<span className='text-primary'>Rental</span>
+          </span>
+        </Link>
+        <ul className='flex gap-6 text-sm text-muted-foreground'>
+          <li>
+            <Link href='/properties' className='transition-colors hover:text-primary'>
+              Properties
+            </Link>
+          </li>
+          <li>
+            <Link href='/terms' className='transition-colors hover:text-primary'>
+              Terms of Service
+            </Link>
+          </li>
+        </ul>
+        <p className='text-sm text-muted-foreground'>&copy; {currentYear} PropertyRental. All rights reserved.</p>
       </div>
     </footer>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import Spinner from '@/components/Spinner';
+import { Button } from '@/components/ui/button';
 import { useSession } from '@/context/SessionContext';
 
 const RequireSession = ({ children, message = 'Sign in to view this page' }) => {
@@ -10,15 +11,11 @@ const RequireSession = ({ children, message = 'Sign in to view this page' }) => 
   if (status === 'loading') return <Spinner loading />;
   if (status === 'unauthenticated') {
     return (
-      <section className='flex flex-col items-center gap-4 px-4 py-24 text-center'>
-        <h1 className='text-2xl font-bold'>{message}</h1>
-        <button
-          type='button'
-          onClick={openSignIn}
-          className='rounded-md bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600'
-        >
+      <section className='flex flex-col items-center gap-6 px-4 py-32 text-center'>
+        <h1 className='text-balance font-display text-4xl font-bold'>{message}</h1>
+        <Button size='lg' onClick={openSignIn}>
           Login or Register
-        </button>
+        </Button>
       </section>
     );
   }
@@ -27,7 +24,7 @@ const RequireSession = ({ children, message = 'Sign in to view this page' }) => 
 
 export function DatabaseError({ error }) {
   return (
-    <p role='alert' className='mx-auto my-10 max-w-xl text-center text-red-600'>
+    <p role='alert' className='mx-auto my-10 max-w-xl text-center text-destructive'>
       Could not load the browser database: {error.message}
     </p>
   );

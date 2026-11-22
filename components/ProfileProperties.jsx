@@ -40,7 +40,7 @@ const ProfileProperties = ({ properties }) => {
       </Link>
       <div className='mt-2'>
         <p className='text-lg font-semibold'>{property.name}</p>
-        <p className='text-gray-600'>
+        <p className='text-muted-foreground'>
           Address: {property.location.street} {property.location.city}{' '}
           {property.location.state}
         </p>
@@ -48,13 +48,13 @@ const ProfileProperties = ({ properties }) => {
       <div className='mt-2'>
         <Link
           href={`/properties/${property._id}/edit`}
-          className='bg-blue-500 text-white px-3 py-3 rounded-md mr-2 hover:bg-blue-600'
+          className='bg-primary text-primary-foreground px-3 py-3 rounded-md mr-2 hover:bg-accent'
         >
           Edit
         </Link>
         <button
           onClick={() => handleDeleteProperty(property._id)}
-          className='bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600'
+          className='bg-destructive text-destructive-foreground px-3 py-2 rounded-md hover:bg-destructive/90'
           type='button'
         >
           Delete

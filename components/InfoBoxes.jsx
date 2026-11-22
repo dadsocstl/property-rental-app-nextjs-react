@@ -1,36 +1,22 @@
 import InfoBox from './InfoBox';
+import Reveal from './motion/Reveal';
 
 const InfoBoxes = () => {
   return (
-    <section>
-      <div className='container-xl lg:container m-auto'>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg'>
-          <InfoBox
-            heading='For Renters'
-            backgroundColor='bg-gray-100'
-            buttonInfo={{
-              text: 'Browse Properties',
-              link: '/properties',
-              backgroundColor: 'bg-black',
-            }}
-          >
-            Find your dream rental property. Bookmark properties and contact
-            owners.
-          </InfoBox>
-          <InfoBox
-            heading='For Property Owners'
-            backgroundColor='bg-blue-100'
-            buttonInfo={{
-              text: 'Add Property',
-              link: '/properties/add',
-              backgroundColor: 'bg-blue-500',
-            }}
-          >
-            List your properties and reach potential tenants. Rent as an Airbnb
-            or long term.
-          </InfoBox>
-        </div>
-      </div>
+    <section className='container py-16'>
+      <Reveal className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+        <InfoBox heading='For Renters' eyebrow='Browse' buttonInfo={{ text: 'Browse Properties', link: '/properties' }}>
+          Find your dream rental property. Bookmark properties and contact owners directly.
+        </InfoBox>
+        <InfoBox
+          heading='For Property Owners'
+          eyebrow='List'
+          highlight
+          buttonInfo={{ text: 'Add Property', link: '/properties/add' }}
+        >
+          List your properties and reach potential tenants. Rent as a short stay or long term.
+        </InfoBox>
+      </Reveal>
     </section>
   );
 };

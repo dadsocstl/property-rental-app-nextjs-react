@@ -1,3 +1,62 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* Palette: navy #0B1F35, petrol #033A56, ocean #00537A, saffron #F5A100, amber #FFB640 */
+    --background: 211 66% 13%;
+    --foreground: 210 33% 96%;
+    --card: 200 93% 18%;
+    --card-foreground: 210 33% 96%;
+    --popover: 200 93% 18%;
+    --popover-foreground: 210 33% 96%;
+    --primary: 39 100% 48%;
+    --primary-foreground: 211 66% 13%;
+    --secondary: 199 100% 24%;
+    --secondary-foreground: 210 33% 96%;
+    --muted: 200 70% 16%;
+    --muted-foreground: 203 28% 74%;
+    --accent: 37 100% 63%;
+    --accent-foreground: 211 66% 13%;
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 210 33% 96%;
+    --border: 199 55% 25%;
+    --input: 199 55% 25%;
+    --ring: 39 100% 48%;
+    --radius: 0.875rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+  ::selection {
+    @apply bg-primary text-primary-foreground;
+  }
+  input,
+  select,
+  textarea {
+    color-scheme: dark;
+  }
+}
+
+/* Legacy form controls that still use bare utility classes get themed surfaces. */
+@layer components {
+  .field {
+    @apply w-full rounded-md border border-input bg-background px-3 py-2 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  }
+}
+
+.Toastify__toast {
+  @apply rounded-lg bg-card font-sans text-card-foreground;
+}
