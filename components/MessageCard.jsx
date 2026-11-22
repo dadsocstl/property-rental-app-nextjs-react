@@ -1,34 +1,33 @@
 'use client';
 
-import deleteMessage from '@/app/actions/deleteMessage';
-import markMessageAsRead from '@/app/actions/markMessageAsRead';
-import { useGlobalContext } from '@/context/GlobalContext';
-import { useState } from 'react';
+import { useSession } from '@/context/SessionContext';
+import { refreshDb } from '@/hooks/use-data';
+import { deleteMessage, toggleMessageRead } from '@/lib/data';
 import { toast } from 'react-toastify';
 
 const MessageCard = ({ message }) => {
-  const [isRead, setIsRead] = useState(message.read);
-  const [isDeleted, setIsDeleted] = useState(false);
-
-  const { setUnreadCount } = useGlobalContext();
+  const { userId } = useSession();
+  const isRead = message.read;
 
   const handleReadClick = async () => {
-    const read = await markMessageAsRead(message._id);
-    setIsRead(read);
-    setUnreadCount((prevCount) => (read ? prevCount - 1 : prevCount + 1));
-    toast.success(`Marked as ${read ? 'read' : 'new'}`);
+    try {
+      const read = await toggleMessageRead(userId, message._id);
+      await refreshDb();
+      toast.success(`Marked as ${read ? 'read' : 'new'}`);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const handleDeleteClick = async () => {
-    await deleteMessage(message._id);
-    setIsDeleted(true);
-    setUnreadCount((prevCount) => (isRead ? prevCount : prevCount - 1));
-    toast.success('Message Deleted');
+    try {
+      await deleteMessage(userId, message._id);
+      await refreshDb();
+      toast.success('Message Deleted');
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
-
-  if (isDeleted) {
-    return <p>Deleted message</p>;
-  }
 
   return (
     <div className='relative bg-white p-4 rounded-md shadow-md border border-gray-200'>

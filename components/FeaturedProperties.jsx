@@ -1,13 +1,10 @@
+'use client';
+
 import FeaturedPropertyCard from '@/components/FeaturedPropertyCard';
-import connectDB from '@/config/database';
-import Property from '@/models/Property';
+import { useFeaturedProperties } from '@/hooks/use-data';
 
-const FeaturedProperties = async () => {
-  await connectDB();
-
-  const properties = await Property.find({
-    is_featured: true,
-  }).lean();
+const FeaturedProperties = () => {
+  const { data: properties = [] } = useFeaturedProperties();
 
   return properties.length > 0 ? (
     <section className='bg-blue-50 px-4 pt-6 pb-10'>

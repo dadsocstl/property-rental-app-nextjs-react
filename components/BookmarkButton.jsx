@@ -1,46 +1,32 @@
 'use client';
 
-import bookmarkProperty from '@/app/actions/bookmarkProperty';
-import checkBookmarkStatus from '@/app/actions/checkBookmarkStatus';
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useSession } from '@/context/SessionContext';
+import { refreshDb, useBookmarkStatus } from '@/hooks/use-data';
+import { toggleBookmark } from '@/lib/data';
 import { FaBookmark } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const BookmarkButton = ({ property }) => {
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
-
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
-
-    checkBookmarkStatus(property._id).then((res) => {
-      if (res.error) toast.error(res.error);
-      if (res.isBookmarked) setIsBookmarked(res.isBookmarked);
-      setLoading(false);
-    });
-  }, [property._id, userId, checkBookmarkStatus]);
+  const { userId, status, openSignIn } = useSession();
+  const { data: isBookmarked = false, isLoading } = useBookmarkStatus(userId, property._id);
 
   const handleClick = async () => {
     if (!userId) {
       toast.error('You need to sign in to bookmark a property');
+      openSignIn();
       return;
     }
 
-    bookmarkProperty(property._id).then((res) => {
-      if (res.error) return toast.error(res.error);
-      setIsBookmarked(res.isBookmarked);
+    try {
+      const res = await toggleBookmark(userId, property._id);
+      await refreshDb();
       toast.success(res.message);
-    });
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
-  if (loading) return <p className='text-center'>Loading...</p>;
+  if (status === 'loading' || isLoading) return <p className='text-center'>Loading...</p>;
 
   return isBookmarked ? (
     <button

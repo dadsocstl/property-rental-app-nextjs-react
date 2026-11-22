@@ -1,13 +1,14 @@
 'use client';
 
-import deleteProperty from '@/app/actions/deleteProperty';
+import { useSession } from '@/context/SessionContext';
+import { refreshDb } from '@/hooks/use-data';
+import { deleteProperty } from '@/lib/data';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-const ProfileProperties = ({ properties: initialProperties }) => {
-  const [properties, setProperties] = useState(initialProperties);
+const ProfileProperties = ({ properties }) => {
+  const { userId } = useSession();
 
   const handleDeleteProperty = async (propertyId) => {
     const confirmed = window.confirm(
@@ -16,17 +17,13 @@ const ProfileProperties = ({ properties: initialProperties }) => {
 
     if (!confirmed) return;
 
-    const deletePropertyById = deleteProperty.bind(null, propertyId);
-
-    await deletePropertyById();
-
-    toast.success('Property Deleted');
-
-    const updatedProperties = properties.filter(
-      (property) => property._id !== propertyId
-    );
-
-    setProperties(updatedProperties);
+    try {
+      await deleteProperty(userId, propertyId);
+      await refreshDb();
+      toast.success('Property Deleted');
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return properties.map((property) => (

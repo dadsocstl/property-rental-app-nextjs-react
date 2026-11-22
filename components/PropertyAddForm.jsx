@@ -1,10 +1,37 @@
 'use client';
 
-import addProperty from '@/app/actions/addProperty';
+import { useSession } from '@/context/SessionContext';
+import { refreshDb } from '@/hooks/use-data';
+import { addProperty } from '@/lib/data';
+import { imagesFromForm, propertyFromForm } from '@/lib/property-form';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const PropertyAddForm = () => {
+  const { userId } = useSession();
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    setPending(true);
+    try {
+      const property = propertyFromForm(formData);
+      property.images = await imagesFromForm(formData);
+      const id = await addProperty(userId, property);
+      await refreshDb();
+      toast.success('Property added');
+      router.push(`/properties/${id}`);
+    } catch (error) {
+      toast.error(error.message);
+      setPending(false);
+    }
+  };
+
   return (
-    <form action={addProperty}>
+    <form onSubmit={handleSubmit}>
       <h2 className='text-3xl text-center font-semibold mb-6'>Add Property</h2>
 
       <div className='mb-4'>
@@ -342,7 +369,7 @@ const PropertyAddForm = () => {
         <input
           type='text'
           id='seller_name'
-          name='seller_info.name.'
+          name='seller_info.name'
           className='border rounded w-full py-2 px-3'
           placeholder='Name'
         />
@@ -396,10 +423,11 @@ const PropertyAddForm = () => {
 
       <div>
         <button
-          className='bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline'
+          className='bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline disabled:opacity-60'
           type='submit'
+          disabled={pending}
         >
-          Add Property
+          {pending ? 'Saving...' : 'Add Property'}
         </button>
       </div>
     </form>

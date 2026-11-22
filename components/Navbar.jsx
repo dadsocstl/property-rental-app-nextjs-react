@@ -2,37 +2,41 @@
 
 import logo from '@/assets/images/logo-white.png';
 import profileDefault from '@/assets/images/profile.png';
-import { getProviders, signIn, signOut, useSession } from 'next-auth/react';
+import { useSession } from '@/context/SessionContext';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { FaGoogle } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
 import UnreadMessageCount from './UnreadMessageCount';
 
 const Navbar = () => {
-  const { data: session } = useSession();
+  const { session, status, openSignIn, signOut } = useSession();
   const profileImage = session?.user?.image;
+  const router = useRouter();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [providers, setProviders] = useState(null);
 
   const pathname = usePathname();
 
   useEffect(() => {
-    const setAuthProviders = async () => {
-      const res = await getProviders();
-      setProviders(res);
-    };
-
-    setAuthProviders();
-
     // NOTE: close mobile menu if the viewport size is changed
-    window.addEventListener('resize', () => {
-      setIsMobileMenuOpen(false);
-    });
+    const closeMenu = () => setIsMobileMenuOpen(false);
+    window.addEventListener('resize', closeMenu);
+    return () => window.removeEventListener('resize', closeMenu);
   }, []);
+
+  const loginButton = (
+    <button
+      type='button'
+      onClick={openSignIn}
+      className='flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2 my-3'
+    >
+      <FaUser className='text-white mr-2' />
+      <span>Login or Register</span>
+    </button>
+  );
 
   return (
     <nav className='bg-blue-700 border-b border-blue-500'>
@@ -110,21 +114,9 @@ const Navbar = () => {
           </div>
 
           {/* <!-- Right Side Menu (Logged Out) --> */}
-          {!session && (
+          {status === 'unauthenticated' && (
             <div className='hidden md:block md:ml-6'>
-              <div className='flex items-center'>
-                {providers &&
-                  Object.values(providers).map((provider) => (
-                    <button
-                      key={provider.name}
-                      onClick={() => signIn(provider.id)}
-                      className='flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2 my-3'
-                    >
-                      <FaGoogle className='text-white mr-2' />
-                      <span>Login or Register</span>
-                    </button>
-                  ))}
-              </div>
+              <div className='flex items-center'>{loginButton}</div>
             </div>
           )}
 
@@ -215,7 +207,7 @@ const Navbar = () => {
                     <button
                       onClick={() => {
                         setIsProfileMenuOpen(false);
-                        signOut({ callbackUrl: '/' });
+                        signOut().then(() => router.push('/'));
                       }}
                       className='block px-4 py-2 text-sm text-gray-700'
                       role='menuitem'
@@ -261,21 +253,9 @@ const Navbar = () => {
                 Add Property
               </Link>
             )}
-            {!session && (
+            {status === 'unauthenticated' && (
               <div className='block md:ml-6'>
-                <div className='flex items-center'>
-                  {providers &&
-                    Object.values(providers).map((provider) => (
-                      <button
-                        key={provider.name}
-                        onClick={() => signIn(provider.id)}
-                        className='flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2 my-3'
-                      >
-                        <FaGoogle className='text-white mr-2' />
-                        <span>Login or Register</span>
-                      </button>
-                    ))}
-                </div>
+                <div className='flex items-center'>{loginButton}</div>
               </div>
             )}
           </div>

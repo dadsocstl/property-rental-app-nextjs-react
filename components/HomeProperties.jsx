@@ -1,16 +1,13 @@
-import connectDB from '@/config/database';
-import Property from '@/models/Property';
+'use client';
+
+import { DatabaseError } from '@/components/RequireSession';
+import Spinner from '@/components/Spinner';
+import { useRecentProperties } from '@/hooks/use-data';
 import Link from 'next/link';
 import PropertyCard from './PropertyCard';
 
-const HomeProperties = async () => {
-  await connectDB();
-
-  // Get the 3 latest properties
-  const recentProperties = await Property.find({})
-    .sort({ createdAt: -1 })
-    .limit(3)
-    .lean();
+const HomeProperties = () => {
+  const { data: recentProperties, error, isLoading } = useRecentProperties();
 
   return (
     <>
@@ -19,15 +16,21 @@ const HomeProperties = async () => {
           <h2 className='text-3xl font-bold text-blue-500 mb-6 text-center'>
             Recent Properties
           </h2>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-            {recentProperties.length === 0 ? (
-              <p>No Properties Found</p>
-            ) : (
-              recentProperties.map((property) => (
-                <PropertyCard key={property._id} property={property} />
-              ))
-            )}
-          </div>
+          {error ? (
+            <DatabaseError error={error} />
+          ) : isLoading ? (
+            <Spinner loading />
+          ) : (
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+              {recentProperties.length === 0 ? (
+                <p>No Properties Found</p>
+              ) : (
+                recentProperties.map((property) => (
+                  <PropertyCard key={property._id} property={property} />
+                ))
+              )}
+            </div>
+          )}
         </div>
       </section>
 

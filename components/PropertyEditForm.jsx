@@ -1,10 +1,30 @@
-import updateProperty from '@/app/actions/updateProperty';
+'use client';
+
+import { useSession } from '@/context/SessionContext';
+import { refreshDb } from '@/hooks/use-data';
+import { updateProperty } from '@/lib/data';
+import { propertyFromForm } from '@/lib/property-form';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const PropertyEditForm = ({ property }) => {
-  const updatePropertyById = updateProperty.bind(null, property._id);
+  const { userId } = useSession();
+  const router = useRouter();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await updateProperty(userId, property._id, propertyFromForm(new FormData(event.currentTarget)));
+      await refreshDb();
+      toast.success('Property updated');
+      router.push(`/properties/${property._id}`);
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
-    <form action={updatePropertyById}>
+    <form onSubmit={handleSubmit}>
       <h2 className='text-3xl text-center font-semibold mb-6'>Edit Property</h2>
 
       <div className='mb-4'>
@@ -372,7 +392,7 @@ const PropertyEditForm = ({ property }) => {
         <input
           type='text'
           id='seller_name'
-          name='seller_info.name.'
+          name='seller_info.name'
           className='border rounded w-full py-2 px-3'
           placeholder='Name'
           defaultValue={property.seller_info.name}
