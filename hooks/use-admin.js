@@ -2,6 +2,7 @@
 
 import { refreshDb } from '@/hooks/use-data';
 import * as admin from '@/lib/admin';
+import * as crm from '@/lib/crm';
 import { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 import useSWR from 'swr';
@@ -30,6 +31,9 @@ export const useWorkOrders = () => useAdminQuery(['work-orders'], admin.getWorkO
 export const useWorkOrderEvents = (workOrderId) =>
   useSWR(workOrderId ? ['db', 'admin', 'work-order-events', workOrderId] : null, () => admin.getWorkOrderEvents(workOrderId), options);
 export const useApplications = () => useAdminQuery(['applications'], admin.getApplications);
+export const useLeads = () => useAdminQuery(['crm-leads'], crm.getLeads);
+export const useLeadActivities = (leadId) =>
+  useSWR(leadId ? ['db', 'admin', 'crm-activities', leadId] : null, () => crm.getLeadActivities(leadId), options);
 
 /** Wraps a mutation: tracks pending state, toasts the outcome, and refreshes every query. */
 export function useAdminAction() {

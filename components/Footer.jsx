@@ -22,7 +22,20 @@ const Footer = () => {
             </Link>
           </li>
         </ul>
-        <p className='text-sm text-muted-foreground'>&copy; {currentYear} Timeless Carat Properties. All rights reserved.</p>
+        <div className='flex flex-col items-center gap-1 text-center text-sm text-muted-foreground md:items-end md:text-right'>
+          <p>&copy; {currentYear} Timeless Carat Properties. All rights reserved.</p>
+          <p className='text-xs'>
+            Icons by{' '}
+            <a
+              href='https://www.flaticon.com/free-icons/real-estate'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='underline underline-offset-2 transition-colors hover:text-primary'
+            >
+              Flaticon
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );

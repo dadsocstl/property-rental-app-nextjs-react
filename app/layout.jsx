@@ -4,6 +4,7 @@ import ChunkReloadGuard from '@/components/ChunkReloadGuard';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import { Inter, Space_Grotesk } from 'next/font/google';
+import '@flaticon/flaticon-uicons/css/regular/rounded.css';
 import 'photoswipe/dist/photoswipe.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

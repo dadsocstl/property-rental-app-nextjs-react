@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@flaticon/flaticon-uicons": "^3.3.1",
     "@gsap/react": "^2.1.2",
     "@radix-ui/react-avatar": "^1.3.1",
     "@radix-ui/react-dialog": "^1.3.1",

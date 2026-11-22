@@ -25,6 +25,7 @@ export function monthLabel(period) {
 }
 
 export const humanize = (value) => (value ?? '').replace(/_/g, ' ');
+export const titleCase = (value) => humanize(value).replace(/^./, (c) => c.toUpperCase());
 
 export function PageHeader({ title, description, children }) {
   return (
@@ -72,6 +73,15 @@ const STATUS_TONES = {
   cancelled: 'quiet',
   withdrawn: 'quiet',
   unavailable: 'quiet',
+  contacted: 'info',
+  tour: 'info',
+  applied: 'warn',
+  won: 'ok',
+  lost: 'quiet',
+  verified: 'ok',
+  partial: 'warn',
+  mismatch: 'danger',
+  unverified: 'quiet',
 };
 
 export function StatusBadge({ status, className }) {

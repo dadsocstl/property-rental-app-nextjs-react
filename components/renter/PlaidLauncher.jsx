@@ -5,7 +5,14 @@ import { Building, Loader2, ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 
-export default function PlaidLauncher({ token, onSuccess, onExit }) {
+export default function PlaidLauncher({
+  token,
+  onSuccess,
+  onExit,
+  title = 'Connect your bank',
+  description = 'Plaid opens in a secure window. Your login is never shared with us.',
+  footnote = 'Encrypted and read-only until you confirm the payment',
+}) {
   const [launched, setLaunched] = useState(false);
   const { open, ready } = usePlaidLink({
     token,
@@ -30,10 +37,8 @@ export default function PlaidLauncher({ token, onSuccess, onExit }) {
         <Building className='size-6' aria-hidden='true' />
       </span>
       <div className='flex flex-col gap-1'>
-        <p className='font-display text-lg font-bold'>Connect your bank</p>
-        <p className='max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground'>
-          Plaid opens in a secure window. Your login is never shared with us.
-        </p>
+        <p className='font-display text-lg font-bold'>{title}</p>
+        <p className='max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground'>{description}</p>
       </div>
       {!ready && (
         <p role='status' className='flex items-center gap-2 text-sm text-muted-foreground'>
@@ -54,7 +59,7 @@ export default function PlaidLauncher({ token, onSuccess, onExit }) {
       )}
       <p className='flex items-center gap-1.5 text-xs text-muted-foreground'>
         <ShieldCheck className='size-3.5' aria-hidden='true' />
-        Encrypted and read-only until you confirm the payment
+        {footnote}
       </p>
     </div>
   );
