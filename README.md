@@ -39,8 +39,8 @@ PropertyRental is a real estate application designed to streamline the process o
 
 ### User Authentication and Profiles
 
-- Implemented **Google Authentication** using NextAuth, allowing users to securely sign in and manage their profiles.
-- Created user-specific routes like `/profile` and `/properties/add` protected by authentication middleware.
+- Implemented browser-session sign-in backed by the in-browser SQLite `users` and `session` tables.
+- Created user-specific routes like `/profile` and `/properties/add` that require a signed-in session.
 
 ### Responsive UI and Loading Indicators
 
@@ -50,9 +50,8 @@ PropertyRental is a real estate application designed to streamline the process o
 #### Technology Stack
 
 - **Frontend**: Next.js, React, Tailwind CSS
-- **Backend**: Node.js, MongoDB (Mongoose)
-- **Authentication**: NextAuth with Google Provider
-- **File Storage**: Cloudinary for image uploads
+- **Database**: In-browser SQLite (`sql.js`, WebAssembly), persisted to IndexedDB. No database server or connection string is required.
+- **Payments**: Stripe Embedded Checkout (card and ACH) and Plaid Auth for bank-account payments, handled by Next.js route handlers
 - **Map Services**: Mapbox and Google Geocoding for location display
 - **State Management**: React Context API (Global Context)
 - **Other Libraries**: React Icons, React Toastify, Photoswipe for image galleries
@@ -62,9 +61,9 @@ PropertyRental is a real estate application designed to streamline the process o
 ### Prerequisites
 
 - **Node.js** (v14 or above)
-- **MongoDB** (running locally or a MongoDB Atlas account)
-- **Google Cloud** project for authentication and geocoding
-- **Cloudinary** account for image uploads
+- **Stripe** account (test keys are fine) for rent payments
+- **Plaid** account (Sandbox is fine) for bank-account payments, optional
+- **Mapbox** and **Google Geocoding** keys for maps, optional
 
 ### Environment Setup
 
@@ -84,15 +83,16 @@ PropertyRental is a real estate application designed to streamline the process o
 3. Set up environment variables. Create a `.env.local` file in the root of your project with the following values:
 
    ```env
-   MONGODB_URI=<your-mongodb-connection-string>
-   NEXTAUTH_SECRET=<your-next-auth-secret>
-   NEXTAUTH_URL=http://localhost:3000
-   GOOGLE_CLIENT_ID=<your-google-client-id>
-   GOOGLE_CLIENT_SECRET=<your-google-client-secret>
+   STRIPE_SECRET_KEY=<your-stripe-secret-key>
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<your-stripe-publishable-key>
+   PLAID_CLIENT_ID=<your-plaid-client-id>
+   PLAID_SECRET=<your-plaid-secret>
+   PLAID_ENV=sandbox
    NEXT_PUBLIC_MAPBOX_TOKEN=<your-mapbox-token>
    NEXT_PUBLIC_GOOGLE_GEOCODING_API_KEY=<your-google-geocoding-api-key>
-   CLOUDINARY_URL=<your-cloudinary-url>
    ```
+
+   There is no database variable. Data lives in a SQLite database that runs in the browser and is saved to IndexedDB, so it is per-browser and is rebuilt from `properties.json` on first load.
 
 4. Run the development server:
 
@@ -121,6 +121,6 @@ PropertyRental is a real estate application designed to streamline the process o
 
 ### Managing Properties
 
-1. Log in using your Google account to access your **Profile**.
+1. Sign in to access your **Profile**.
 2. Add new properties, or edit and delete existing listings from your **Profile Page**.
 3. Use the **Property Management Tools** to modify property details, images, and availability.
