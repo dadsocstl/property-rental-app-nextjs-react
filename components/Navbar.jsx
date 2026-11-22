@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useSession } from '@/context/SessionContext';
 import { cn } from '@/lib/utils';
-import { Bell, Bookmark, Building2, CreditCard, LogOut, Menu, Plus, User, UserRoundCog, X } from 'lucide-react';
+import { Bell, Bookmark, Building2, LogOut, Menu, Plus, User, UserRoundCog, Wallet, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -113,7 +113,7 @@ const Navbar = () => {
                   )}
                   <DropdownMenuItem asChild>
                     <Link href='/renter'>
-                      <CreditCard /> My Rent
+                      <Wallet /> My Rent
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
