@@ -1,6 +1,6 @@
 'use client';
 
-import logo from '@/assets/images/logo-white.png';
+import { BrandLockup } from '@/components/BrandLogo';
 import profileDefault from '@/assets/images/profile.png';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,11 +40,8 @@ const Navbar = () => {
     <header className='sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md'>
       <nav className='container flex h-20 items-center justify-between gap-4' aria-label='Main'>
         <div className='flex items-center gap-10'>
-          <Link href='/' className='flex items-center gap-3'>
-            <Image className='h-9 w-auto' src={logo} alt='' />
-            <span className='font-display text-xl font-bold tracking-tight'>
-              Timeless Carat <span className='text-primary'>Properties</span>
-            </span>
+          <Link href='/' className='flex shrink-0 items-center rounded-lg'>
+            <BrandLockup priority />
           </Link>
           <ul className='hidden items-center gap-1 md:flex'>
             {links.map((link) => (

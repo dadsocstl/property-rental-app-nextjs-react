@@ -14,6 +14,13 @@ export const metadata = {
   title: 'Timeless Carat Properties | Find the perfect rental',
   description: 'Browse, bookmark and list rental properties: apartments, cabins, lofts and homes for short or long stays.',
   keywords: 'rental, property, real estate, apartments, vacation rentals',
+  applicationName: 'Timeless Carat Properties',
+  openGraph: {
+    siteName: 'Timeless Carat Properties',
+    title: 'Timeless Carat Properties',
+    description: 'Browse, bookmark and list rental properties: apartments, cabins, lofts and homes for short or long stays.',
+    type: 'website',
+  },
 };
 
 export const viewport = {

@@ -1,5 +1,4 @@
-import logo from '@/assets/images/logo-white.png';
-import Image from 'next/image';
+import { BrandLockup } from '@/components/BrandLogo';
 import Link from 'next/link';
 
 const Footer = () => {
@@ -8,11 +7,8 @@ const Footer = () => {
   return (
     <footer className='mt-24 border-t border-border bg-muted'>
       <div className='container flex flex-col items-center justify-between gap-6 py-10 md:flex-row'>
-        <Link href='/' className='flex items-center gap-3'>
-          <Image src={logo} alt='' className='h-8 w-auto' />
-          <span className='font-display text-lg font-bold'>
-            Timeless Carat <span className='text-primary'>Properties</span>
-          </span>
+        <Link href='/' className='flex items-center rounded-lg'>
+          <BrandLockup className='h-10 sm:h-10' />
         </Link>
         <ul className='flex gap-6 text-sm text-muted-foreground'>
           <li>
