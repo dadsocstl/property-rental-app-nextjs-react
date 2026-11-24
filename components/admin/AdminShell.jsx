@@ -3,33 +3,23 @@
 import RequireSession from '@/components/RequireSession';
 import { useSession } from '@/context/SessionContext';
 import { cn } from '@/lib/utils';
-import {
-  Building2,
-  ClipboardList,
-  DoorOpen,
-  FileSignature,
-  Home,
-  LayoutDashboard,
-  Receipt,
-  ShieldAlert,
-  UserRound,
-  Users,
-  Wrench,
-} from 'lucide-react';
+import FlatIcon from '@/components/FlatIcon';
+import { ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export const ADMIN_NAV = [
-  { href: '/admin', label: 'Overview', icon: LayoutDashboard },
-  { href: '/admin/properties', label: 'Properties', icon: Home },
-  { href: '/admin/vacancies', label: 'Vacancies', icon: DoorOpen },
-  { href: '/admin/rent', label: 'Rent ledger', icon: Receipt },
-  { href: '/admin/leases', label: 'Leases', icon: FileSignature },
-  { href: '/admin/tenants', label: 'Tenants', icon: Users },
-  { href: '/admin/units', label: 'Units', icon: Building2 },
-  { href: '/admin/maintenance', label: 'Maintenance', icon: Wrench },
-  { href: '/admin/applications', label: 'Applications', icon: ClipboardList },
-  { href: '/admin/landlords', label: 'Landlords', icon: UserRound },
+  { href: '/admin', label: 'Overview', icon: 'dashboard' },
+  { href: '/admin/crm', label: 'CRM', icon: 'handshake' },
+  { href: '/admin/properties', label: 'Properties', icon: 'home' },
+  { href: '/admin/vacancies', label: 'Vacancies', icon: 'door-open' },
+  { href: '/admin/rent', label: 'Rent ledger', icon: 'receipt' },
+  { href: '/admin/leases', label: 'Leases', icon: 'file-signature' },
+  { href: '/admin/tenants', label: 'Tenants', icon: 'users' },
+  { href: '/admin/units', label: 'Units', icon: 'apartment' },
+  { href: '/admin/maintenance', label: 'Maintenance', icon: 'wrench-simple' },
+  { href: '/admin/applications', label: 'Applications', icon: 'clipboard-list' },
+  { href: '/admin/landlords', label: 'Landlords', icon: 'user' },
 ];
 
 function AdminGate({ children }) {
@@ -57,7 +47,7 @@ function AdminNav() {
         Management
       </p>
       <ul className='-mx-4 flex gap-1 overflow-x-auto px-4 pb-2 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0'>
-        {ADMIN_NAV.map(({ href, label, icon: Icon }) => (
+        {ADMIN_NAV.map(({ href, label, icon }) => (
           <li key={href} className='shrink-0'>
             <Link
               href={href}
@@ -67,7 +57,7 @@ function AdminNav() {
                 isActive(href) && 'bg-secondary text-foreground'
               )}
             >
-              <Icon className={cn('size-4', isActive(href) && 'text-primary')} aria-hidden='true' />
+              <FlatIcon name={icon} className={cn(isActive(href) && 'text-primary')} />
               {label}
             </Link>
           </li>

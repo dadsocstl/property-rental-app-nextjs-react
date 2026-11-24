@@ -11,11 +11,13 @@ export async function POST(request) {
   const userId = String(body?.userId ?? '').slice(0, 100);
   if (!userId) return jsonError('Missing user');
 
+  const verifying = body?.purpose === 'verify';
+
   try {
     const { data } = await plaid.linkTokenCreate({
       user: { client_user_id: userId },
       client_name: 'Timeless Carat Properties',
-      products: [Products.Auth],
+      products: [verifying ? Products.Identity : Products.Auth],
       country_codes: [CountryCode.Us],
       language: 'en',
       account_filters: { depository: { account_subtypes: ['checking', 'savings'] } },

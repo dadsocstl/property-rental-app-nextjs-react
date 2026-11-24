@@ -1,5 +1,6 @@
 'use client';
 
+import ApplicationReview from '@/components/admin/ApplicationReview';
 import FormDialog from '@/components/admin/FormDialog';
 import {
   EmptyRow,
@@ -7,6 +8,7 @@ import {
   PageHeader,
   QueryState,
   Select,
+  StatusBadge,
   TableShell,
   Td,
   Th,
@@ -20,6 +22,7 @@ import { useAdminAction, useApplications, useUnits } from '@/hooks/use-admin';
 import * as admin from '@/lib/admin';
 import { Plus, UserCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 function AddApplicationDialog() {
   const { data: units } = useUnits();
@@ -70,7 +73,7 @@ function AddApplicationDialog() {
   );
 }
 
-function ApplicationRow({ app }) {
+function ApplicationRow({ app, onReview }) {
   const { run, pending } = useAdminAction();
   const ratio = app.market_rent_cents && app.monthly_income_cents ? app.monthly_income_cents / app.market_rent_cents : null;
   return (
@@ -90,6 +93,14 @@ function ApplicationRow({ app }) {
         )}
       </Td>
       <Td>
+        <div className='flex flex-col items-start gap-1'>
+          <StatusBadge status={app.idv_status === 'not_started' ? 'unverified' : app.idv_status} className='text-[11px]' />
+          <span className='text-xs text-muted-foreground'>
+            {app.income_status === 'verified' ? `${money(app.income_verified_cents)}/mo verified` : 'Income unverified'}
+          </span>
+        </div>
+      </Td>
+      <Td>
         <Select
           aria-label={`Status of ${app.first_name} ${app.last_name}`}
           value={app.status}
@@ -104,7 +115,10 @@ function ApplicationRow({ app }) {
           ))}
         </Select>
       </Td>
-      <Td className='text-right'>
+      <Td className='flex items-center justify-end gap-2 text-right'>
+        <Button size='sm' variant='outline' onClick={() => onReview(app)}>
+          Review
+        </Button>
         {app.tenant_id ? (
           <Link href='/admin/leases' className='text-sm font-medium text-primary hover:underline'>
             Tenant · write lease
@@ -124,6 +138,8 @@ function ApplicationRow({ app }) {
 
 export default function ApplicationsView() {
   const { data: apps, error, isLoading } = useApplications();
+  const [reviewingId, setReviewingId] = useState(null);
+  const reviewing = (apps ?? []).find((a) => a.id === reviewingId) ?? null;
   return (
     <>
       <PageHeader
@@ -140,6 +156,7 @@ export default function ApplicationsView() {
               <Th>Unit</Th>
               <Th>Move-in</Th>
               <Th className='text-right'>Income</Th>
+              <Th>Verification</Th>
               <Th>Status</Th>
               <Th className='text-right'>
                 <span className='sr-only'>Actions</span>
@@ -147,13 +164,14 @@ export default function ApplicationsView() {
             </tr>
           </thead>
           <tbody>
-            {apps?.length === 0 && <EmptyRow colSpan={6}>No applications yet.</EmptyRow>}
+            {apps?.length === 0 && <EmptyRow colSpan={7}>No applications yet.</EmptyRow>}
             {(apps ?? []).map((a) => (
-              <ApplicationRow key={a.id} app={a} />
+              <ApplicationRow key={a.id} app={a} onReview={(app) => setReviewingId(app.id)} />
             ))}
           </tbody>
         </TableShell>
       </QueryState>
+      <ApplicationReview app={reviewing} open={Boolean(reviewing)} onOpenChange={(open) => !open && setReviewingId(null)} />
     </>
   );
 }
